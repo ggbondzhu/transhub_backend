@@ -31,9 +31,9 @@ def get_ranks_for_competition(cname, is_admin=False):
     result = []
     for rank, sno, real_name in ranks_with_users:
         rank_dict = rank.to_dict()
-        rank_dict['real_name'] = real_name
         if is_admin:
             rank_dict['to_admin'] = {'sno': sno,
+                                     'real_name': real_name,
                                      'rank_id': rank.rank_id, }
         result.append(rank_dict)
     return result
