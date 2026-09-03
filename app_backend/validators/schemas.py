@@ -25,7 +25,8 @@ class FieldRules:
     PASSWORD_MAX_LEN = 18
     REAL_NAME_MIN_LEN = 1
     REAL_NAME_MAX_LEN = USER_MODEL_REAL_NAME_MAX_LEN
-    STUDENT_ID_LEN = 10
+    STUDENT_ID_MIN_LEN = 1
+    STUDENT_ID_MAX_LEN = 20
 
 
 class CommonValidators:
@@ -137,8 +138,8 @@ class UserRegisterSchema(BaseModel):
                           description=f"密码，{FieldRules.PASSWORD_MIN_LEN}-{FieldRules.PASSWORD_MAX_LEN}个字符")
     real_name: str = Field(..., min_length=FieldRules.REAL_NAME_MIN_LEN, max_length=FieldRules.REAL_NAME_MAX_LEN,
                            description=f"真实姓名，{FieldRules.REAL_NAME_MIN_LEN}-{FieldRules.REAL_NAME_MAX_LEN}个字符")
-    sno: str = Field(..., min_length=FieldRules.STUDENT_ID_LEN, max_length=FieldRules.STUDENT_ID_LEN,
-                     description=f"学号，{FieldRules.STUDENT_ID_LEN}位数字")
+    sno: str = Field(..., min_length=FieldRules.STUDENT_ID_MIN_LEN, max_length=FieldRules.STUDENT_ID_MAX_LEN,
+                     description=f"学号，{FieldRules.STUDENT_ID_MIN_LEN}-{FieldRules.STUDENT_ID_MAX_LEN}个字符")
 
     @field_validator('username')
     def validate_username(cls, v):
@@ -157,10 +158,10 @@ class UserRegisterSchema(BaseModel):
         logger.debug(f"Validating student number: {v}")
         if not v.isdecimal():
             logger.warning(f"Invalid student number format: {v}")
-            raise ValueError('学号必须是10位数字')
-        if len(v) != FieldRules.STUDENT_ID_LEN:
+            raise ValueError('学号必须是数字')
+        if len(v) < FieldRules.STUDENT_ID_MIN_LEN or len(v) > FieldRules.STUDENT_ID_MAX_LEN:
             logger.warning(f"Invalid student number length: {len(v)}")
-            raise ValueError(f'学号必须是{FieldRules.STUDENT_ID_LEN}位数字')
+            raise ValueError(f'学号必须是{FieldRules.STUDENT_ID_MIN_LEN}-{FieldRules.STUDENT_ID_MAX_LEN}个字符')
         if len(config.Course.REGISTER_STUDENT_LIST) > 0 and v not in config.Course.REGISTER_STUDENT_LIST:
             logger.warning(f"Student number {v} not in allowed list")
             raise ValueError('该学号不在允许注册的名单中，请确认你已选课或报名竞赛。')
